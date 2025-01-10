@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>口コミ返信ジェネレーター</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 1rem;
+        }
+        button {
+            display: block;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>口コミ返信ジェネレーター</h1>
+    <p>以下のフォームに口コミを入力してください。</p>
+    <textarea id="reviewInput" placeholder="ここに口コミを入力してください"></textarea>
+    <button id="generateButton">返信を生成</button>
+    <div id="responseContainer"></div>
+
+    <script>
+        document.getElementById("generateButton").addEventListener("click", async () => {
+            const reviewText = document.getElementById("reviewInput").value;
+
+            if (!reviewText.trim()) {
+                alert("口コミを入力してください。");
+                return;
+            }
+
+            const responseContainer = document.getElementById("responseContainer");
+            responseContainer.innerHTML = "返信を生成中です...";
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/generate_reply", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ review: reviewText }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("サーバーエラー");
+                }
+
+                const data = await response.json();
+                responseContainer.innerHTML = `<div class="response"><strong>自動返信:</strong><br>${data.reply}</div>`;
+            } catch (error) {
+                responseContainer.innerHTML = `<div class="response"><strong>エラー:</strong> ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
